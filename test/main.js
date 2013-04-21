@@ -11,10 +11,110 @@
 
 var assert = require('assert');
 var SimplestQueue = require('../index.js');
+var EventEmitter = require('events').EventEmitter;
 
-describe('General implementation check', function() {
-  it('foo', function() {
-    assert.ok(true);
-  })
+describe('initialization', function() {
+  it('without limit', function() {
+    var queue = new SimplestQueue();
+    assert.ok(queue.elts);
+    assert.strictEqual(queue.elts.length, 0);
+    assert.strictEqual(queue.remove(), false);
+    assert.ok(!queue.maxSize);
+  });
 
+  it('with limit', function() {
+    var queue = new SimplestQueue(3);
+    assert.ok(queue.elts);
+    assert.strictEqual(queue.elts.length, 0);
+    assert.strictEqual(queue.remove(), false);
+    assert.strictEqual(queue.maxSize, 3);
+  });
+});
+
+describe('add', function() {
+  it('without limit', function() {
+    var queue = new SimplestQueue();
+    for (var i = 0; i < 5; i++) {
+      assert.strictEqual(queue.add(i), true);
+    }
+  });
+
+  it('with limit', function(done) {
+    var queue = new SimplestQueue(2);
+    var called = 0;
+    var calledNonFull = 0;
+    queue.on('non-full', function() {
+      calledNonFull += 1;
+    });
+    queue.on('full', function() {
+      called += 1;
+      if (called === 1) {
+        assert.strictEqual(queue.remove(), 0);
+      }
+    });
+    for (var i = 0; i < 5; i++) {
+      if (i >= 3) {
+        assert.strictEqual(queue.add(i), false);
+      } else {
+        assert.strictEqual(queue.add(i), true);
+      }
+    }
+    setTimeout(function() {
+      assert.equal(called, 2);
+      assert.equal(calledNonFull, 1);
+      done();
+    }, 1);
+  });
+
+  it('check event on one element', function(done) {
+    var queue = new SimplestQueue();
+    var called = 0;
+    var calledEmpt = 0;
+    queue.on('empty', function(message) {
+      calledEmpt += 1;
+    });
+
+    queue.on('non-empty', function(message) {
+      assert.strictEqual(queue.elts.length, 1);
+      if (called === 0) {
+        assert.strictEqual(queue.remove(), 42);
+      }
+      called += 1;
+
+    });
+    assert.ok(queue.add(42));
+    assert.ok(queue.add(43));
+    assert.ok(queue.add(44));
+    setTimeout(function() {
+      assert.equal(called, 2);
+      assert.equal(calledEmpt, 1);
+      done();
+    }, 1);
+  });
+});
+
+describe('remove', function() {
+  it('empty', function() {
+    var queue = new SimplestQueue();
+    assert.strictEqual(queue.remove(), false);
+  });
+
+  it('check on one element', function() {
+    var queue = new SimplestQueue();
+    queue.add(1);
+    assert.strictEqual(queue.remove(), 1);
+  });
+
+  it('limited more elements', function() {
+    var queue = new SimplestQueue(3);
+    assert.ok(queue.add(1));
+    assert.ok(queue.add(2));
+    assert.ok(queue.add(3));
+    assert.ok(!queue.add(4));
+    assert.strictEqual(queue.remove(), 1);
+    assert.strictEqual(queue.remove(), 2);
+    assert.strictEqual(queue.remove(), 3);
+    assert.strictEqual(queue.remove(), false);
+
+  });
 });
