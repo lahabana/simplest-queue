@@ -1,0 +1,20 @@
+{
+  "name": "simplest-queue",
+  "version": "0.0.1",
+  "description": "The simplest event-driven queue ever, limited in size and tries to stay simple",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/lahabana/simplest-queue"
+  },
+  "keywords": [
+    "queue",
+    "easy",
+    "event"
+  ],
+  "author": "lahabana (Charly Molter)",
+  "license": "MIT"
+}
