@@ -8,7 +8,7 @@ an element has been added to an empty queue.
 the size maximum of the queue is optional if it is not provided
 the queue is not bounded.
 
-## Installation
+## Installation (by npm)
 
     npm install simplest-queue
     npm test
