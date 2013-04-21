@@ -15,6 +15,9 @@
     "easy",
     "event"
   ],
+  "devDependencies": {
+    "mocha": ">=1.9.0"
+  },
   "author": "lahabana (Charly Molter)",
   "license": "MIT"
 }
